@@ -1,4 +1,4 @@
-const db = require('./models');
+const db = require('.');
 
 db.sequelize.sync().then(() => {
   console.log('Database synced');

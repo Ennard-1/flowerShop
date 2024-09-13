@@ -9,55 +9,86 @@ async function runTests() {
     // Criar Tags
     const tag1 = await db.Tag.create({ name: 'Indoor' });
     const tag2 = await db.Tag.create({ name: 'Outdoor' });
+    const tag3 = await db.Tag.create({ name: 'Sale' });
+    const tag4 = await db.Tag.create({ name: 'New' });
     console.log('Tags criadas.');
 
-    // Criar Produto
-    const product = await db.Product.create({
-      name: 'Rose',
-      description: 'A beautiful rose',
-      slug: 'rose',
-      quantity: 100
-    });
-    console.log('Produto criado.');
+    // Criar Produtos
+    const products = [
+      {
+        name: 'Rose',
+        description: 'A beautiful rose',
+        slug: 'rose',
+        quantity: 100,
+        images: ['rose1.jpg', 'rose2.jpg'],
+        tags: [tag1.id, tag2.id]
+      },
+      {
+        name: 'Tulip',
+        description: 'A vibrant tulip',
+        slug: 'tulip',
+        quantity: 50,
+        images: ['tulip1.jpg', 'tulip2.jpg'],
+        tags: [tag2.id, tag3.id]
+      },
+      {
+        name: 'Sunflower',
+        description: 'A bright sunflower',
+        slug: 'sunflower',
+        quantity: 75,
+        images: ['sunflower1.jpg'],
+        tags: [tag1.id, tag4.id]
+      }
+    ];
 
-    // Associar Tags ao Produto
-    await product.addTags([tag1, tag2]);
-    console.log('Tags associadas ao produto.');
+    // Adicionar Produtos e suas Imagens e Tags
+    for (const productData of products) {
+      const product = await db.Product.create({
+        name: productData.name,
+        description: productData.description,
+        slug: productData.slug,
+        quantity: productData.quantity
+      });
 
-    // Criar Imagens para o Produto
-    await db.ProductImage.create({
-      image: 'rose1.jpg',
-      productId: product.id
-    });
-    await db.ProductImage.create({
-      image: 'rose2.jpg',
-      productId: product.id
-    });
-    console.log('Imagens criadas para o produto.');
+      // Adicionar Imagens
+      await Promise.all(productData.images.map(image => 
+        db.ProductImage.create({
+          image,
+          productId: product.id
+        })
+      ));
 
-    // Testar se o Produto foi criado corretamente
-    const fetchedProduct = await db.Product.findByPk(product.id, {
-      include: [
-        { model: db.Tag, through: { attributes: [] } },
-        db.ProductImage
-      ]
-    });
+      // Associar Tags
+      await product.addTags(productData.tags);
+    }
+    console.log('Produtos, imagens e tags criados e associados.');
 
-    console.log('Produto recuperado:');
-    console.log(`Nome: ${fetchedProduct.name}`);
-    console.log(`Descrição: ${fetchedProduct.description}`);
-    console.log(`Slug: ${fetchedProduct.slug}`);
-    console.log(`Quantidade: ${fetchedProduct.quantity}`);
-    console.log(`Tags: ${fetchedProduct.Tags.map(tag => tag.name).join(', ')}`);
-    console.log(`Imagens: ${fetchedProduct.ProductImages.map(img => img.image).join(', ')}`);
+    // Testar se os Produtos foram criados corretamente
+    for (const productData of products) {
+      const fetchedProduct = await db.Product.findOne({
+        where: { slug: productData.slug },
+        include: [
+          { model: db.Tag, through: { attributes: [] } },
+          db.ProductImage
+        ]
+      });
 
-    // Validações simples
-    if (fetchedProduct.name !== 'Rose') throw new Error('Nome do produto está incorreto');
-    if (fetchedProduct.description !== 'A beautiful rose') throw new Error('Descrição do produto está incorreta');
-    if (fetchedProduct.slug !== 'rose') throw new Error('Slug do produto está incorreto');
-    if (fetchedProduct.quantity !== 100) throw new Error('Quantidade do produto está incorreta');
-    if (fetchedProduct.Tags.length !== 2) throw new Error('Número de tags associadas está incorreto');
-    if (fetchedProduct.ProductImages.length !== 2) throw new Error('Número de imagens associadas está incorreto');
+      console.log(`Produto recuperado: ${productData.name}`);
+      console.log(`Nome: ${fetchedProduct.name}`);
+      console.log(`Descrição: ${fetchedProduct.description}`);
+      console.log(`Slug: ${fetchedProduct.slug}`);
+      console.log(`Quantidade: ${fetchedProduct.quantity}`);
+      console.log(`Tags: ${fetchedProduct.Tags.map(tag => tag.name).join(', ')}`);
+      console.log(`Imagens: ${fetchedProduct.ProductImages.map(img => img.image).join(', ')}`);
+
+      // Validações simples
+      if (fetchedProduct.name !== productData.name) throw new Error(`Nome do produto "${productData.slug}" está incorreto`);
+      if (fetchedProduct.description !== productData.description) throw new Error(`Descrição do produto "${productData.slug}" está incorreta`);
+      if (fetchedProduct.slug !== productData.slug) throw new Error(`Slug do produto "${productData.slug}" está incorreto`);
+      if (fetchedProduct.quantity !== productData.quantity) throw new Error(`Quantidade do produto "${productData.slug}" está incorreta`);
+      if (fetchedProduct.Tags.length !== productData.tags.length) throw new Error(`Número de tags associadas ao produto "${productData.slug}" está incorreto`);
+      if (fetchedProduct.ProductImages.length !== productData.images.length) throw new Error(`Número de imagens associadas ao produto "${productData.slug}" está incorreto`);
+    }
 
     console.log('Todos os testes passaram com sucesso.');
   } catch (error) {
