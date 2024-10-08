@@ -48,3 +48,42 @@ exports.getProductBySlug = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Criar um novo produto
+exports.createProduct = async (req, res) => {
+  try {
+    const { name, description, slug, quantity } = req.body;
+    const newProduct = await Product.create({
+      name,
+      description,
+      slug,
+      quantity,
+    });
+    res.status(201).json(newProduct);
+  } catch (error) {
+    res.status(500).json({ error: "Erro ao criar o produto" });
+  }
+};
+
+// Atualizar um produto existente
+exports.updateProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, description, slug, quantity } = req.body;
+
+    const product = await Product.findByPk(id);
+    if (!product) {
+      return res.status(404).json({ error: "Produto não encontrado" });
+    }
+
+    product.name = name || product.name;
+    product.description = description || product.description;
+    product.slug = slug || product.slug;
+    product.quantity = quantity || product.quantity;
+
+    await product.save();
+    res.status(200).json(product);
+  } catch (error) {
+    res.status(500).json({ error: "Erro ao atualizar o produto" });
+  }
+};
