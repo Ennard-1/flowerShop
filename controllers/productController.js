@@ -22,12 +22,11 @@ exports.getAllProducts = async (req, res) => {
   }
 };
 
-// Função para obter um produto pelo slug
-exports.getProductBySlug = async (req, res) => {
+exports.getProductById = async (req, res) => {
   try {
-    const { slug } = req.params;
+    const { id } = req.params;
     const product = await Product.findOne({
-      where: { slug },
+      where: { id },
       include: [
         {
           model: ProductImage,
@@ -39,15 +38,17 @@ exports.getProductBySlug = async (req, res) => {
         },
       ],
     });
+
     if (product) {
       res.json(product);
     } else {
-      res.status(404).json({ message: "Product not found" });
+      res.status(404).json({ message: "Produto não encontrado" });
     }
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 // Criar um novo produto
 exports.createProduct = async (req, res) => {
@@ -85,5 +86,22 @@ exports.updateProduct = async (req, res) => {
     res.status(200).json(product);
   } catch (error) {
     res.status(500).json({ error: "Erro ao atualizar o produto" });
+  }
+};
+
+// Deletar um produto existente
+exports.deleteProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const product = await Product.findByPk(id);
+    if (!product) {
+      return res.status(404).json({ error: "Produto não encontrado" });
+    }
+
+    await product.destroy();
+    res.status(200).json({ message: "Produto deletado com sucesso" });
+  } catch (error) {
+    res.status(500).json({ error: "Erro ao deletar o produto" });
   }
 };

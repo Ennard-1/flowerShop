@@ -1,13 +1,13 @@
 const express = require("express");
 const app = express();
-const productRoutes = require("./routes/productRoutes");
+const publicRoutes = require("./routes/publicRoutes");
 const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 // Middleware
 app.use(express.json());
 
 // Rotas
-app.use("/api", productRoutes);
+app.use("/api", publicRoutes);
 app.use("/api", authRoutes);
 app.use("/api", adminRoutes);
 // Inicie o servidor
