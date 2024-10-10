@@ -20,14 +20,14 @@ const testUploadImage = async () => {
     // 2. Criar um formulário com a imagem e o ID do produto
     const formData = new FormData();
     const imagePath = path.join(__dirname, "testImage1.png"); // Substitua pelo caminho real do arquivo que deseja enviar
-    const productId = 3; // Substitua pelo ID do produto desejado
+    const productId = 2; // Substitua pelo ID do produto desejado
     formData.append("image", fs.createReadStream(imagePath));
     formData.append("productId", productId);
 
     // 3. Enviar a imagem para o servidor
     console.log("Enviando imagem para o servidor...");
     const uploadResponse = await axios.post(
-      `${baseUrl}/api/product-images`,
+      `${baseUrl}/api/products/images`,
       formData,
       {
         headers: {

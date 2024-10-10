@@ -5,7 +5,10 @@ const {
   deleteProduct,
 } = require("../controllers/productController");
 const { authenticateJWT, isAdmin } = require("../middleware/auth");
-const { createProductImage } = require("../controllers/productImageController");
+const {
+  createProductImage,
+  removeProductImage,
+} = require("../controllers/productImageController");
 const router = express.Router();
 
 // Rotas de Produtos
@@ -20,6 +23,13 @@ router.delete("/products/:id", authenticateJWT, isAdmin, deleteProduct);
 
 // Rotas de imagens
 // Rota protegida para criar uma imagem de produto
-router.post("/product-images", authenticateJWT, isAdmin, createProductImage);
+router.post("/products/images", authenticateJWT, isAdmin, createProductImage);
+/// Rota para remover uma imagem de produto
+router.delete(
+  "/products/images/:imageName",
+  authenticateJWT,
+  isAdmin,
+  removeProductImage
+);
 
 module.exports = router;

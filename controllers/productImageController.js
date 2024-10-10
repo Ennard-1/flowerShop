@@ -3,13 +3,14 @@ const path = require("path");
 const fs = require("fs");
 const { Product, ProductImage } = require("../models");
 
-// Configuração de multer para salvar as imagens no diretório 'uploads/'
+// Configuração de multer para salvar as imagens no diretório 'data/images/'
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "./data/images"); // Pasta onde os arquivos serão salvos
   },
   filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
+    const uniqueSuffix = `${Date.now()}-${file.originalname}`;
+    cb(null, uniqueSuffix); // Nome do arquivo único
   },
 });
 
@@ -58,7 +59,8 @@ exports.createProductImage = async (req, res) => {
 
       // Cria a nova imagem associada ao produto
       const newProductImage = await ProductImage.create({
-        image: req.file.path, // Caminho do arquivo salvo
+        // Caminho do arquivo salvo no formato servido
+        image: `/products/images/${req.file.filename}`, // Novo caminho servível
         productId: product.id, // Associação com o produto
       });
 
@@ -99,3 +101,38 @@ exports.readAllImages = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
+// Controller para remover uma imagem de produto
+exports.removeProductImage = async (req, res) => {
+  const { imageName } = req.params; // Obtém o nome da imagem dos parâmetros da requisição
+
+  try {
+    // Encontra a imagem pelo caminho armazenado no banco de dados
+    const productImage = await ProductImage.findOne({ where: { image: `/products/images/${imageName}` } });
+    
+    if (!productImage) {
+      return res.status(404).json({ message: "Imagem não encontrada" });
+    }
+
+    // Caminho completo da imagem no sistema de arquivos
+    const imagePath = path.resolve(__dirname, "../data/images", imageName); // Ajusta o caminho conforme necessário
+
+    // Remove a entrada no banco de dados
+    await productImage.destroy();
+
+    // Remove o arquivo do sistema de arquivos
+    fs.unlink(imagePath, (err) => {
+      if (err) {
+        console.error("Erro ao remover o arquivo:", err);
+        return res.status(500).json({
+          message: "Erro ao remover o arquivo do sistema de arquivos",
+        });
+      }
+
+      return res.status(200).json({ message: "Imagem removida com sucesso" });
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
