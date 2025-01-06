@@ -4,6 +4,7 @@ const router = express.Router();
 const path = require("path");
 const productController = require("../controllers/productController");
 const { readAllImages } = require("../controllers/productImageController");
+const { getProductTags, getTagById, getTags } = require("../controllers/tagController")
 // Rota para obter todos os produtos
 router.get("/products", productController.getAllProducts);
 
@@ -23,5 +24,9 @@ router.get("/products/images/:imageName", (req, res) => {
     }
   });
 });
+
+router.get("/tag", getTags)
+router.get("/tag/:id", getTagById)
+
 
 module.exports = router;

@@ -10,13 +10,22 @@ db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
 // Carregar os modelos
-db.Product = require("./product")(sequelize, DataTypes);
-db.Tag = require("./tag")(sequelize, DataTypes);
-db.ProductImage = require("./productImage")(sequelize, DataTypes);
+db.Product = require("./product").default(sequelize, DataTypes);
+db.Tag = require("./tag").default(sequelize, DataTypes);
+db.ProductImage = require("./productImage").default(sequelize, DataTypes);
 
 // Definindo a associação muitos-para-muitos entre Product e Tag
-db.Product.belongsToMany(db.Tag, { through: "ProductTags" });
-db.Tag.belongsToMany(db.Product, { through: "ProductTags" });
+db.Product.belongsToMany(db.Tag, {
+  through: "ProductTags",
+  foreignKey: 'productId',
+  as: 'tags'
+});
+
+db.Tag.belongsToMany(db.Product, {
+  through: "ProductTags",
+  foreignKey: 'tagId',
+  as: 'products'
+});
 
 // Definindo as associações um-para-muitos entre Product e ProductImage
 db.Product.hasMany(db.ProductImage, { foreignKey: 'productId' });

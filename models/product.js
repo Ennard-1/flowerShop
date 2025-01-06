@@ -1,4 +1,5 @@
-module.exports = (sequelize, DataTypes) => {
+
+export default (sequelize, DataTypes) => {
   const Product = sequelize.define('Product', {
     id: {
       type: DataTypes.INTEGER,
@@ -30,10 +31,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   });
 
-  Product.associate = models => {
-    Product.hasMany(models.ProductImage, { foreignKey: 'productId' });
-    Product.belongsToMany(models.Tag, { through: 'ProductTags' });
-  };
+
 
   return Product;
 };

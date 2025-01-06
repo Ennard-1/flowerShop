@@ -12,6 +12,7 @@ exports.getAllProducts = async (req, res) => {
         },
         {
           model: Tag,
+          as: 'tags',
           attributes: ["name"],
         },
       ],
@@ -59,6 +60,7 @@ exports.createProduct = async (req, res) => {
       description,
       slug,
       quantity,
+      price
     });
     res.status(201).json(newProduct);
   } catch (error) {
@@ -66,28 +68,42 @@ exports.createProduct = async (req, res) => {
   }
 };
 
-// Atualizar um produto existente
 exports.updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, slug, quantity } = req.body;
+    const { name, description, slug, quantity, price, tagIds } = req.body;
 
-    const product = await Product.findByPk(id);
+    const product = await Product.findByPk(id, {
+      include: ['tags'], // Incluindo as tags associadas ao produto (ajuste conforme seu modelo)
+    });
+
     if (!product) {
       return res.status(404).json({ error: "Produto não encontrado" });
     }
 
+    // Atualizando as propriedades do produto
     product.name = name || product.name;
     product.description = description || product.description;
     product.slug = slug || product.slug;
     product.quantity = quantity || product.quantity;
+    product.price = price || product.price;
 
+    // Se a lista de tagIds for fornecida, associar as novas tags ao produto
+    if (tagIds && tagIds.length > 0) {
+      await product.setTags(tagIds); // Este método é gerado pelo Sequelize para atualizar as tags associadas
+    }
+
+    // Salvando as alterações no produto
     await product.save();
+
+    // Retornando o produto atualizado com as tags associadas
     res.status(200).json(product);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Erro ao atualizar o produto" });
   }
 };
+
 
 // Deletar um produto existente
 exports.deleteProduct = async (req, res) => {
