@@ -1,34 +1,29 @@
-const { Sequelize, DataTypes } = require("sequelize");
+import { Sequelize } from 'sequelize';
+import ProductModel from './product.js';
+import ProductImageModel from './productImage.js';
+import ProductTagModel from './productTag.js';
+import TagModel from './tag.js';
 const sequelize = new Sequelize({
   dialect: "sqlite",
   storage: "./data/database.sqlite",
 });
 
-const db = {};
+const models = {
+  Product: ProductModel(sequelize, Sequelize.DataTypes),
+  ProductImage: ProductImageModel(sequelize, Sequelize.DataTypes),
+  ProductTag: ProductTagModel(sequelize, Sequelize.DataTypes),
+  Tag: TagModel(sequelize, Sequelize.DataTypes),
+};
 
-db.Sequelize = Sequelize;
-db.sequelize = sequelize;
-
-// Carregar os modelos
-db.Product = require("./product").default(sequelize, DataTypes);
-db.Tag = require("./tag").default(sequelize, DataTypes);
-db.ProductImage = require("./productImage").default(sequelize, DataTypes);
-
-// Definindo a associação muitos-para-muitos entre Product e Tag
-db.Product.belongsToMany(db.Tag, {
-  through: "ProductTags",
-  foreignKey: 'productId',
-  as: 'tags'
+// Configurar associações
+Object.keys(models).forEach((modelName) => {
+  if (models[modelName].associate) {
+    models[modelName].associate(models);
+  }
 });
 
-db.Tag.belongsToMany(db.Product, {
-  through: "ProductTags",
-  foreignKey: 'tagId',
-  as: 'products'
-});
+export { sequelize, models };
 
-// Definindo as associações um-para-muitos entre Product e ProductImage
-db.Product.hasMany(db.ProductImage, { foreignKey: 'productId' });
-db.ProductImage.belongsTo(db.Product, { foreignKey: 'productId' });
 
-module.exports = db;
+
+

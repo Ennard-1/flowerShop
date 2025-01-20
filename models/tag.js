@@ -12,7 +12,13 @@ export default (sequelize, DataTypes) => {
     }
   });
 
-
+  Tag.associate = (models) => {
+    Tag.belongsToMany(models.Product, {
+      through: models.ProductTag,
+      foreignKey: 'tagId',
+      as: 'products'
+    });
+  };
 
   return Tag;
 };

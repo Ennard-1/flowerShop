@@ -19,7 +19,9 @@ export default (sequelize, DataTypes) => {
     }
   });
 
-
+  ProductImage.associate = (models) => {
+    ProductImage.belongsTo(models.Product, { foreignKey: 'productId', as: 'product' });
+  };
 
   return ProductImage;
 };

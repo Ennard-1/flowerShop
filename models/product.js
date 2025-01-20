@@ -1,4 +1,3 @@
-
 export default (sequelize, DataTypes) => {
   const Product = sequelize.define('Product', {
     id: {
@@ -14,24 +13,26 @@ export default (sequelize, DataTypes) => {
       type: DataTypes.TEXT,
       allowNull: true
     },
-    slug: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true
-    },
     quantity: {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0
     },
     price: {
-      type: DataTypes.DECIMAL(10, 2), // Valor decimal para preços
+      type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
-      defaultValue: 0.00 // Valor padrão para evitar problemas com produtos antigos
+      defaultValue: 0.00
     }
   });
 
-
+  Product.associate = (models) => {
+    Product.hasMany(models.ProductImage, { foreignKey: 'productId', as: 'images' });
+    Product.belongsToMany(models.Tag, {
+      through: models.ProductTag,
+      foreignKey: 'productId',
+      as: 'tags'
+    });
+  };
 
   return Product;
 };

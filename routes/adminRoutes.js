@@ -12,6 +12,7 @@ const {
 const router = express.Router();
 
 const { createTag, deleteTag, updateTag, } = require("../controllers/tagController");
+const { addTagToProduct, removeTagFromProduct } = require("../controllers/productTagController");
 
 // Rotas de Produtos
 // Rota protegida para criar produto
@@ -35,10 +36,11 @@ router.delete(
 );
 
 // Rotas de Tags
-
 router.post("/tag", authenticateJWT, isAdmin, createTag)
 router.delete("/tag/:id", authenticateJWT, isAdmin, deleteTag)
 router.put("/tag/:id", authenticateJWT, isAdmin, updateTag)
 
-
+// Rotas de ProductTags
+router.post("/tags/:productId/:tagId", authenticateJWT, isAdmin, addTagToProduct)
+router.delete("/product/:productId/:tagId", authenticateJWT, isAdmin, removeTagFromProduct)
 module.exports = router;

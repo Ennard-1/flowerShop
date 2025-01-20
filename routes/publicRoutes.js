@@ -4,9 +4,10 @@ const router = express.Router();
 const path = require("path");
 const productController = require("../controllers/productController");
 const { readAllImages } = require("../controllers/productImageController");
-const { getProductTags, getTagById, getTags } = require("../controllers/tagController")
+const { getTagById, getTags } = require("../controllers/tagController");
+const { getProductTags } = require("../controllers/productTagController");
 // Rota para obter todos os produtos
-router.get("/products", productController.getAllProducts);
+router.get("/products", productController.getProducts);
 
 // Rota para obter um produto específico pelo slug
 router.get("/products/:id", productController.getProductById);
@@ -27,6 +28,6 @@ router.get("/products/images/:imageName", (req, res) => {
 
 router.get("/tag", getTags)
 router.get("/tag/:id", getTagById)
-
+router.get("/products/:productId/tags", getProductTags)
 
 module.exports = router;

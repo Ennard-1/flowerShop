@@ -1,7 +1,8 @@
-const { Product, Tag } = require("../models");
+import { models } from '../models/index.js';
 
+const { Tag } = models;
 // Criar uma nova tag
-exports.createTag = async (req, res) => {
+export const createTag = async (req, res) => {
     try {
         const { name } = req.body;
 
@@ -19,7 +20,7 @@ exports.createTag = async (req, res) => {
 };
 
 // Listar todas as tags
-exports.getTags = async (req, res) => {
+export const getTags = async (req, res) => {
     try {
         const tags = await Tag.findAll();
         res.status(200).json(tags);
@@ -29,7 +30,7 @@ exports.getTags = async (req, res) => {
 };
 
 // Buscar uma tag por ID
-exports.getTagById = async (req, res) => {
+export const getTagById = async (req, res) => {
     try {
         const { id } = req.params;
 
@@ -45,7 +46,7 @@ exports.getTagById = async (req, res) => {
 };
 
 // Atualizar uma tag
-exports.updateTag = async (req, res) => {
+export const updateTag = async (req, res) => {
     try {
         const { id } = req.params;
         const { name } = req.body;
@@ -66,7 +67,7 @@ exports.updateTag = async (req, res) => {
 };
 
 // Deletar uma tag
-exports.deleteTag = async (req, res) => {
+export const deleteTag = async (req, res) => {
     try {
         const { id } = req.params;
 
