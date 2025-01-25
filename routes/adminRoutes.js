@@ -8,7 +8,11 @@ const { authenticateJWT, isAdmin } = require("../middleware/auth");
 const {
   createProductImage,
   removeProductImage,
+  upload
 } = require("../controllers/productImageController");
+
+
+
 const router = express.Router();
 
 const { createTag, deleteTag, updateTag, } = require("../controllers/tagController");
@@ -26,7 +30,7 @@ router.delete("/products/:id", authenticateJWT, isAdmin, deleteProduct);
 
 // Rotas de imagens
 // Rota protegida para criar uma imagem de produto
-router.post("/products/images", authenticateJWT, isAdmin, createProductImage);
+router.post("/products/:productId/images", upload.single('image'), createProductImage, isAdmin, authenticateJWT);
 /// Rota para remover uma imagem de produto
 router.delete(
   "/products/images/:imageName",

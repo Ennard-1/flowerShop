@@ -3,10 +3,11 @@ const app = express();
 const publicRoutes = require("./routes/publicRoutes");
 const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
-
+const cors = require("cors");
 const path = require("path");
 // Middleware
 app.use(express.json());
+app.use(cors());
 
 // Rotas
 app.use("/api", publicRoutes);
