@@ -2,8 +2,11 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { models } from "../models/index.js";
+import { fileURLToPath } from "url";
 const { Product, ProductImage } = models
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 
 // Configuração de multer para salvar as imagens no diretório 'data/images/'
@@ -105,19 +108,24 @@ export const readAllImages = async (req, res) => {
 
 // Controller para remover uma imagem de produto
 export const removeProductImage = async (req, res) => {
+
   const { imageName } = req.params; // Obtém o nome da imagem dos parâmetros da requisição
-
+  console.log("imageName", imageName)
   try {
+    console.log("Buscando imagem no banco de dados...");
     // Encontra a imagem pelo caminho armazenado no banco de dados
+    console.log("imageName recebido:", imageName);
     const productImage = await ProductImage.findOne({ where: { image: `/products/images/${imageName}` } });
-
+    console.log("Imagem encontrada no banco de dados:", productImage); // Adicione esta linha
     if (!productImage) {
+      console.log("Imagem não encontrada no banco de dados.");
       return res.status(404).json({ message: "Imagem não encontrada" });
     }
 
-    // Caminho completo da imagem no sistema de arquivos
-    const imagePath = path.resolve(__dirname, "../data/images", imageName); // Ajusta o caminho conforme necessário
 
+    console.log("Caminho base das imagens:", path.resolve(__dirname, "../data/images"));
+    const imagePath = path.resolve(__dirname, "../data/images", imageName);
+    console.log("imagePath:", imagePath);
     // Remove a entrada no banco de dados
     await productImage.destroy();
 
@@ -132,6 +140,10 @@ export const removeProductImage = async (req, res) => {
 
       return res.status(200).json({ message: "Imagem removida com sucesso" });
     });
+    if (!fs.existsSync(imagePath)) {
+      console.log("Arquivo não encontrado no sistema de arquivos:", imagePath);
+      return res.status(404).json({ message: "Arquivo não encontrado no sistema de arquivos" });
+    }
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
