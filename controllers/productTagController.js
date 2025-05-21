@@ -1,6 +1,6 @@
 import { models } from '../models/index.js';
 
-const { ProductTag } = models;
+const { ProductTag , Product,Tag} = models;
 
 export const addTagToProduct = async (req, res) => {
   try {
@@ -16,15 +16,23 @@ export const addTagToProduct = async (req, res) => {
 };
 
 export const getProductTags = async (req, res) => {
+  const { productId } = req.params;
   try {
-    const { productId } = req.params;
+      // Busca o produto e suas tags associadas
+      const product = await Product.findByPk(productId, {
+          include: [{ model: Tag, as: 'tags' }]
+      });
 
-    const productTags = await ProductTag.findAll({ where: { productId } });
+      if (!product) {
+          return res.status(404).json({ message: 'Produto não encontrado.' });
+      }
 
-    res.status(200).json(productTags);
+      // Retorna as tags do produto, apenas com o nome da tag
+      const tags = product.tags.map(tag => tag.name);
+      res.json(tags);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Erro ao buscar as tags do produto' });
+      console.error(error);
+      res.status(500).json({ message: 'Erro ao buscar tags do produto.' });
   }
 };
 

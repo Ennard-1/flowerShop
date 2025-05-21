@@ -1,6 +1,6 @@
 import { models } from '../models/index.js';
 
-const { Tag } = models;
+const { Tag,Product,ProductTag } = models;
 // Criar uma nova tag
 export const createTag = async (req, res) => {
     try {
@@ -83,6 +83,27 @@ export const deleteTag = async (req, res) => {
 };
 
 
+
+export const getProductsByTag = async (req, res) => {
+    const tagId = req.params.tagId;
+  
+    try {
+      const tag = await Tag.findOne({ where: { id: tagId } });
+  
+      if (!tag) {
+        return res.status(404).json({ message: 'Tag não encontrada.' });
+      }
+  
+      const products = await tag.getProducts({
+        include: [{ model: Tag, as: 'tags' }]
+      });
+  
+      res.json(products);
+    } catch (error) {
+      console.error('Erro ao buscar produtos por tag:', error);
+      res.status(500).json({ message: 'Erro interno no servidor.' });
+    }
+  };
 
 
 
