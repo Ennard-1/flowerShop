@@ -6,6 +6,7 @@ const productController = require("../controllers/productController");
 const { readAllImages } = require("../controllers/productImageController");
 const { getTagById, getTags, getProductsByTag } = require("../controllers/tagController");
 const { getProductTags } = require("../controllers/productTagController");
+const { getSettings } = require("../controllers/storeSettingsController");
 // Rota para obter todos os produtos
 router.get("/products", productController.getProducts);
 
@@ -26,8 +27,12 @@ router.get("/products/images/:imageName", (req, res) => {
   });
 });
 
+// Rotas de tags
 router.get("/tag", getTags)
 router.get("/tag/:id", getTagById)
 router.get("/products/:productId/tags", getProductTags)
 router.get('/:tagId/products', getProductsByTag);
+
+// Rota de configurações
+router.get('/settings', getSettings);
 module.exports = router;

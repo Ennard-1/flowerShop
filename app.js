@@ -5,9 +5,19 @@ const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const cors = require("cors");
 const path = require("path");
+const { sequelize } = require('./models');
 // Middleware
 app.use(express.json());
 app.use(cors());
+
+
+sequelize.sync({ force: false })  // ou { force: true } para recriar as tabelas (perde dados)
+  .then(() => {
+    console.log('Database synced');
+  })
+  .catch(error => {
+    console.error('Error syncing database:', error);
+  });
 
 // Rotas
 app.use("/api", publicRoutes);
